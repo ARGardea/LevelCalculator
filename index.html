@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <title>Legion Level Calculator</title>
+    <link href="styles/Layout.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/levelCalculator.css">
+    <link rel="stylesheet" href="styles/bootstrap.min.css">
+    <script type='text/javascript' src="scripts/levelCalculator.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
+</head>
+
+<body>
+    <header>
+        <ul class="headerMenu">
+            <li onclick="location.href='http://pkmn-legion.deviantart.com'"><a href="http://pkmn-legion.deviantart.com">PKMN-Legion</a></li>
+        </ul>
+    </header>
+    <div class="content">
+        <div id="LevelCalculator" class="LevelCalculator">
+            <span id="displayWrapper" class="displayWrapper">
+                <input type="number" id="levelDisplay" class="levelDisplay"/>
+                <input type="number" id="levelExp" class="levelExpDisplay"/>
+                +<input type="number" id="expProgress" class="expProgressDisplay"/>/<span id="progressMax" class="progressMaxSpan">1000</span>
+            </span>
+            <span id="controlWrapper" class="controlWrapper">
+                <button id="addRowButton" class="addRowButton" onclick="levelCalculator.addRowClicked()">Add Row</button>
+                <button id="calculateButton" class="calculateButton" onclick="levelCalculator.calculateClicked()">Calculate</button>
+                <button id="exportButton" class="exportButton" onclick="levelCalculator.exportClicked()">Export</button>
+                <button id="clearButton" class="clearButton" onclick="levelCalculator.clearClicked()">Clear Rows</button>
+            </span>
+            <div id="rowContainer" class="rowContainer">
+            </div>
+        </div>
+        <div id="exportOverlay" class="deadOverlay">
+            <h3 class="overlayHeader">Tip: Click the text area and hit Ctrl+A (Cmd+A for Macs) </h3>
+            <textarea id="exportText" placeholder="YO THERE SHOULD BE TEXT HERE BRUH" class="exportText"></textarea>
+            <button id="doneButton" class="doneButton" onclick="levelCalculator.closeExportClicked()">Got it!</button>
+        </div>
+    </div>
+</body>
+
+</html>
