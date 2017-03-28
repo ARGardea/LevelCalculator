@@ -1,7 +1,9 @@
 var levelCalculator = (function () {
     var baseStars = 5,
         bonusStars = 2,
-        starIncrement = 5;
+        starIncrement = 5,
+        maxExpTotal = 94500,
+        maxLevel = 100;
     var controlID = "mainControlDiv";
     var rewardSet = [
         {
@@ -52,7 +54,6 @@ var levelCalculator = (function () {
     function setup() {
         levelCalculator.containerDiv = document.getElementById("rowContainer");
         levelCalculator.levelDisplay = document.getElementById("levelDisplay");
-        levelCalculator.levelExpDisplay = document.getElementById("levelExp");
         levelCalculator.expProgressDisplay = document.getElementById("expProgress");
     }
 
@@ -155,6 +156,7 @@ var levelCalculator = (function () {
                 levelExp: 0,
                 remainderExp: 0,
                 expList: [],
+                defaultExp: 0,
                 levelUpTracker: [
                     {
                         complete: false,
@@ -176,6 +178,9 @@ var levelCalculator = (function () {
 
     function calculateUpdate() {
         calculateTotals(levelCalculator.dataHolder);
+        if(levelCalculator.dataHolder.expTotal > maxExpTotal){
+            alert("Be aware, there's more exp here than you need to be at level 100! To be level 100, you need " + maxExpTotal + " exp. You currently have a total of " + levelCalculator.dataHolder.expTotal + " exp. That means you have " + (levelCalculator.dataHolder.expTotal - maxExpTotal) + " exp left over!");
+        }
         levelCalculator.updateDisplay();
     }
 
@@ -192,29 +197,25 @@ var levelCalculator = (function () {
 
     function calculateLevelFromExp(exp) {
         var workingLevel = 1;
-        var standardIncrement = 1000;
+        var LevelIncrement = 1000;
         var remainingExp = 0;
         var levelExp = 0;
+
         while (exp > 0) {
+
             if (workingLevel > 9) {
-                if ((exp - standardIncrement) >= 0) {
-                    exp -= standardIncrement;
-                    levelExp += standardIncrement;
-                    workingLevel += 1;
-                } else {
-                    remainingExp = exp;
-                    exp = 0;
-                }
+                levelIncrement = 1000;
             } else {
-                if (exp - (workingLevel * 100) >= 0) {
-                    var expDeduction = workingLevel * 100;
-                    exp -= expDeduction;
-                    levelExp += expDeduction;
-                    workingLevel += 1;
-                } else {
-                    remainingExp = exp;
-                    exp = 0;
-                }
+                levelIncrement = workingLevel * 100;
+            }
+
+            if ((exp - levelIncrement) >= 0) {
+                exp -= levelIncrement;
+                levelExp += levelIncrement;
+                workingLevel += 1;
+            } else {
+                remainingExp = exp;
+                exp = 0;
             }
         }
 
@@ -247,23 +248,42 @@ var levelCalculator = (function () {
         var dataObject = levelCalculator.dataHolder;
         var levelProgress = 0;
         var totalExp = 0;
+        
+        var i = 1;
 
-        for (var i = 0; i < dataObject.expList.length; i++) {
+        if (dataObject.defaultExp > 0) {
+            i = 0;
+        }
+
+        for (i; i < dataObject.expList.length; i++) {
             var expItem = dataObject.expList[i];
-            var processingItem = true;
-            var currentItemValue = expItem.expValue;
-            totalExp += currentItemValue;
-            while (processingItem) {
-                if (workingLevel > 9) {
-                    levelIncrement = 1000;
-                } else {
-                    levelIncrement = workingLevel * 100;
-                }
+            if (expItem.active) {
+                var processingItem = true;
+                var currentItemValue = expItem.expValue;
+                totalExp += currentItemValue;
+                while (processingItem) {
+                    if (workingLevel > 9) {
+                        levelIncrement = 1000;
+                    } else {
+                        levelIncrement = workingLevel * 100;
+                    }
 
-                if (levelProgress + currentItemValue <= levelIncrement) {
-                    logExpItem("" + currentItemValue, i, workingLevel - 1);
-                    levelProgress += currentItemValue;
-                    if (levelProgress == levelIncrement) {
+                    if (levelProgress + currentItemValue <= levelIncrement) {
+                        logExpItem("" + currentItemValue, i, workingLevel - 1);
+                        levelProgress += currentItemValue;
+                        if (levelProgress == levelIncrement) {
+                            levelProgress = 0;
+                            workingLevel++;
+                            dataObject.levelUpTracker.push({
+                                complete: false,
+                                levelProgress: 0,
+                                exp: []
+                            });
+                        }
+                        processingItem = false;
+                    } else {
+                        var difference = currentItemValue - (levelIncrement - levelProgress);
+                        logExpItem(levelIncrement + "/" + currentItemValue, i, workingLevel - 1);
                         levelProgress = 0;
                         workingLevel++;
                         dataObject.levelUpTracker.push({
@@ -271,19 +291,8 @@ var levelCalculator = (function () {
                             levelProgress: 0,
                             exp: []
                         });
+                        currentItemValue = difference;
                     }
-                    processingItem = false;
-                } else {
-                    var difference = currentItemValue - (levelIncrement - levelProgress);
-                    logExpItem(levelIncrement + "/" + currentItemValue, i, workingLevel - 1);
-                    levelProgress = 0;
-                    workingLevel++;
-                    dataObject.levelUpTracker.push({
-                        complete: false,
-                        levelProgress: 0,
-                        exp: []
-                    });
-                    currentItemValue = difference;
                 }
             }
         }
@@ -339,7 +348,6 @@ var levelCalculator = (function () {
     return {
         containerDiv: {},
         levelDisplay: {},
-        levelExpDisplay: {},
         expProgressDisplay: {},
         dataHolder: {},
         setup: function () {
@@ -349,7 +357,16 @@ var levelCalculator = (function () {
                 expTotal: 0,
                 levelExp: 0,
                 remainderExp: 0,
-                expList: [],
+                expList: [
+                    {
+                        link: "",
+                        title: "Given Exp",
+                        expValue: 0,
+                        active: true,
+                        counted: false
+                    }
+                ],
+                defaultExp: 0,
                 levelUpTracker: [
                     {
                         complete: false,
@@ -386,7 +403,6 @@ var levelCalculator = (function () {
         },
         updateDisplay: function () {
             this.levelDisplay.value = this.dataHolder.currentLevel;
-            this.levelExpDisplay.value = this.dataHolder.levelExp;
             this.expProgressDisplay.value = this.dataHolder.remainderExp;
             var expMax = document.getElementById("progressMax");
             if (this.dataHolder.currentLevel < 10) {
@@ -395,21 +411,27 @@ var levelCalculator = (function () {
                 expMax.innerHTML = 1000;
             }
         },
-        setlevel: function (totalLevel) {
+        setLevel: function (totalLevel) {
             this.dataHolder.currentLevel = totalLevel;
-            this.dataHolder.levelExp = calculateExpFromLevel(totalLevel);
+            this.updateSetExp();
         },
-        setlevelExp: function (totalExp) {
-            this.dataHolder.levelExp = totalExp;
-            var levelCalc = calculateLevelFromExp(totalExp);
-            this.dataHolder.currentLevel = levelCalc.level;
-            this.dataHoler.remainderExp = levelCalc.remainder;
+        setlevelExp: function (givenExp) {
+            this.dataHolder.remainderExp = givenExp;
+            this.updateSetExp();
+        },
+        updateSetExp: function () {
+            this.dataHolder.defaultExp = 0;
+            
+            var levelExp = calculateExpFromLevel(this.dataHolder.currentLevel);
+            this.dataHolder.levelExp = levelExp;
+            this.dataHolder.defaultExp = this.dataHolder.levelExp + this.dataHolder.remainderExp;
+            this.dataHolder.expList[0].expValue = this.dataHolder.defaultExp;
         },
         handleLevelSet: function (e) {
-            levelCalculator.setLevel(e.value);
+            levelCalculator.setLevel(parseInt(e.value));
         },
         handleExpSet: function (e) {
-            levelCalculator.setlevelExp(e.value);
+            levelCalculator.setlevelExp(parseInt(e.value));
         },
         addRowClicked: function () {
             addRowClicked();
@@ -439,7 +461,16 @@ var levelCalculator = (function () {
         },
         expChanged: function (target) {
             var targetNum = target.id.replace("expInput", "");
-            levelCalculator.dataHolder.expList[targetNum].expValue = parseInt(target.value);
+            var expValue = parseInt(target.value);
+            
+            if(expValue < maxExpTotal + 10000) {
+                levelCalculator.dataHolder.expList[targetNum].expValue = expValue;
+            }else{
+                alert("Woah, you can't add something with that much exp, it might just break! How'd you even get that much exp, anyways?")
+                target.value = 0;
+            }
+            
+            
         }
     }
 })();

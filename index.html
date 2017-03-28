@@ -4,7 +4,7 @@
     <title>Legion Level Calculator</title>
     <link href="styles/Layout.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/levelCalculator.css">
-    <link rel="stylesheet" href="styles/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script type='text/javascript' src="scripts/levelCalculator.js"></script>
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
 </head>
@@ -16,11 +16,16 @@
         </ul>
     </header>
     <div class="content">
-        <div id="LevelCalculator" class="LevelCalculator">
-            <span id="displayWrapper" class="displayWrapper">
-                <input type="number" id="levelDisplay" class="levelDisplay"/>
-                <input type="number" id="levelExp" class="levelExpDisplay"/>
-                +<input type="number" id="expProgress" class="expProgressDisplay"/>/<span id="progressMax" class="progressMaxSpan">1000</span>
+        <div id="LevelCalculator" class="LevelCalculator container">
+            <span id="displayWrapper" class="displayWrapper row">
+                <span class="levelWrapper">
+                <label for="levelDisplay">Current Level</label>
+                <input type="number" id="levelDisplay" class="levelDisplay" onchange="levelCalculator.handleLevelSet(this)"/>
+                </span>
+            <span class="inputWrapper">
+                <label for="expProgress">Progress towards next level</label>
+                <input type="number" id="expProgress" class="expProgressDisplay" onchange="levelCalculator.handleExpSet(this)"/>/<span id="progressMax" class="progressMaxSpan">1000</span>
+            </span>
             </span>
             <span id="controlWrapper" class="controlWrapper">
                 <button id="addRowButton" class="addRowButton" onclick="levelCalculator.addRowClicked()">Add Row</button>
