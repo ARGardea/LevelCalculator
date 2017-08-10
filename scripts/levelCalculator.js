@@ -283,7 +283,7 @@ var levelCalculator = (function () {
                         processingItem = false;
                     } else {
                         var difference = currentItemValue - (levelIncrement - levelProgress);
-                        logExpItem(levelIncrement + "/" + currentItemValue, i, workingLevel - 1);
+                        logExpItem((levelIncrement - levelProgress) + "/" + currentItemValue, i, workingLevel - 1);
                         levelProgress = 0;
                         workingLevel++;
                         dataObject.levelUpTracker.push({
