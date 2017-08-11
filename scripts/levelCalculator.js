@@ -230,12 +230,14 @@ var levelCalculator = (function () {
 
     function calculateExpFromLevel(level) {
         var workingTotal = 0;
-        while (level > 0) {
-            if (level > 9) {
+        while (level > 1) {
+            console.log(level);
+            if (level > 10) {
                 workingTotal += 1000;
             } else {
                 workingTotal += (level - 1) * 100;
             }
+            console.log(workingTotal);
             level--;
         }
         return workingTotal;
@@ -262,7 +264,7 @@ var levelCalculator = (function () {
                 var currentItemValue = expItem.expValue;
                 totalExp += currentItemValue;
                 while (processingItem) {
-                    if (workingLevel > 9) {
+                    if (workingLevel > 10) {
                         levelIncrement = 1000;
                     } else {
                         levelIncrement = workingLevel * 100;
